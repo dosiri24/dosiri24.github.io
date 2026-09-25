@@ -3,3 +3,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# 원본 자료 (용량·팀원 개인정보)
+*.pdf
+
+# 디자인 시안
+drafts/

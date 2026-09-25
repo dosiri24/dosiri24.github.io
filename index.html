@@ -26,7 +26,7 @@
     --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; word-break: keep-all; overflow-wrap: break-word; }
+html { scroll-behavior: smooth; word-break: keep-all; overflow-wrap: break-word; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
     margin: 0; padding: 28px 20px 40px;
     font-family: var(--body); color: var(--ink); line-height: 1.65; font-size: 15px;
@@ -304,47 +304,66 @@ a { color: inherit; }
     .titleblock strong { white-space: normal; word-break: break-all; }
 }
 
-/* 키워드 하이라이트: 누르면 안내가 열림. body[data-guides="off"]이면 평문처럼 보임 */
-body[data-guides="off"] .kw { background: none; border: 0; padding: 0; margin: 0; cursor: default; pointer-events: none; }
-body[data-guides="off"] .kw::after { content: none; }
+/* 키워드 하이라이트: 노란 형광펜. 누르면 안내가 열림. body[data-guides="off"]이면 평문처럼 보임 */
 .kw {
-    font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 0 3px; margin: 0 -3px;
-    border: 0; border-bottom: 2px dashed var(--blue); background: rgba(35, 73, 161, .08);
+    cursor: pointer; padding: 0 2px; margin: 0 -2px;
+    background: linear-gradient(transparent 52%, rgba(255, 214, 0, .55) 52%);
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
     transition: background .15s;
 }
-.kw:hover { background: rgba(35, 73, 161, .18); }
-.kw::after { content: " ✦"; font-size: .7em; color: var(--blue); vertical-align: super; }
+.kw, .cat { -webkit-tap-highlight-color: transparent; }
+.kw:focus-visible { background: linear-gradient(transparent 30%, rgba(255, 214, 0, .75) 30%); outline: none; }
+@media (hover: hover) { .kw:hover { background: linear-gradient(transparent 30%, rgba(255, 214, 0, .75) 30%); } }
+body[data-guides="off"] .kw { background: none; padding: 0; margin: 0; cursor: default; pointer-events: none; }
+.kw.kw-pending { background: none; padding: 0; margin: 0; cursor: auto; pointer-events: none; }
 .kw.ph { color: var(--magenta); }
 
 /* 안내 고양이: 우측 하단, 귀·꼬리 달린 얼굴. 평소엔 살짝 통통 */
 .cat {
-    position: fixed; right: 10px; bottom: 30px; z-index: 41; width: 118px; height: 102px; pointer-events: none;
+    position: absolute; inset: 0; pointer-events: none;
     transform-origin: 54% 88%;
     animation: tilt 3.2s ease-in-out infinite;
 }
 .cat svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cat .stick { display: none; }
+.cat[data-talking="true"] .stick { display: inline; }
 .cat .tail { transform-box: view-box; transform-origin: 98px 94px; animation: sway 3.2s ease-in-out infinite; animation-delay: .25s; }
 .cat .face {
     position: absolute; left: 53.85%; top: 65%; transform: translate(-50%, -50%);
     font-family: var(--mono); font-size: 13px; color: var(--blue); white-space: nowrap;
 }
-.cat .face-talk { display: none; font-size: 11.5px; margin-left: .15em; }
-.cat[data-talking="true"] { animation: none; }
+.cat .face-talk { display: none; font-size: 12.5px; }
+.cat[data-talking="true"] { animation: hop .55s ease-in-out infinite; }
 .cat[data-talking="true"] .tail { animation: none; }
 .cat[data-talking="true"] .head { fill: var(--blue); }
 .cat[data-talking="true"] .inner { fill: rgba(255,255,255,.35); }
 .cat[data-talking="true"] .face { color: #fff; }
 .cat[data-talking="true"] .face-idle { display: none; }
 .cat[data-talking="true"] .face-talk { display: inline; }
+.cat-dock { position: fixed; right: 10px; bottom: 30px; z-index: 41; width: 118px; height: 102px; pointer-events: none; }
+.cat { pointer-events: auto; cursor: pointer; }
+body[data-guides="off"] .cat { cursor: default; }
+.cat-tip {
+    position: absolute; right: 0; bottom: calc(100% + 12px); width: max-content; max-width: 230px;
+    padding: 9px 12px; background: var(--paper); border: 1.5px solid var(--blue);
+    font-size: 13px; line-height: 1.5; color: var(--ink); pointer-events: auto;
+    transform-origin: 85% 100%; animation: pop .25s cubic-bezier(.2, .9, .3, 1.15);
+}
+.cat-tip::after {
+    content: ""; position: absolute; right: 44px; bottom: -8px; width: 13px; height: 13px;
+    background: var(--paper); border-right: 1.5px solid var(--blue); border-bottom: 1.5px solid var(--blue); transform: rotate(45deg);
+}
+.cat-tip[hidden] { display: none; }
 .cat-name {
     position: absolute; left: 53.85%; top: 100%; transform: translate(-50%, 2px);
     padding: 1px 7px; border: 1px solid var(--blue); background: var(--paper);
     font-family: var(--mono); font-size: 10.5px; letter-spacing: .5px; color: var(--blue); white-space: nowrap;
 }
-.cat[data-talking="true"] .cat-name { background: var(--blue); color: #fff; }
+.cat-dock:has(.cat[data-talking="true"]) .cat-name { background: var(--blue); color: #fff; }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-9px); } 60% { transform: translateY(-9px); } }
 @keyframes tilt { 0%, 30%, 100% { transform: rotate(-4deg); } 50%, 80% { transform: rotate(3.5deg); } }
 @keyframes sway { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
-@media (prefers-reduced-motion: reduce) { .cat, .cat .tail { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cat, .cat[data-talking="true"], .cat .tail { animation: none; } }
 
 /* 안내 판: 화면을 채우는 말풍선 */
 .overlay { position: fixed; inset: 0; z-index: 40; background: rgba(31, 31, 31, .35); display: none; }
@@ -375,7 +394,7 @@ body[data-guides="off"] .kw::after { content: none; }
 .bubble-text { max-width: 34em; margin: 0 auto; font-size: 17px; line-height: 1.95; }
 .bubble-text p { margin: 0; }
 @media (max-width: 900px) {
-    .cat { right: 6px; bottom: 6px; width: 88px; height: 76px; }
+    .cat-dock { right: 6px; bottom: calc(24px + env(safe-area-inset-bottom)); width: 88px; height: 76px; }
     .cat .face { font-size: 9.5px; }
     .cat .face-talk { font-size: 8.5px; }
     body { padding-bottom: 80px; }
@@ -416,15 +435,21 @@ body[data-guides="off"] .kw::after { content: none; }
     .record li { grid-template-columns: auto 1fr; gap: 2px 10px; padding: 10px 0; }
     .record li > span:nth-child(3) { grid-column: 1 / -1; font-size: 14.5px; color: var(--ink); }
     .record li > .org { grid-column: 1 / -1; white-space: normal; font-size: 12.5px; }
-    /* 고양이: 화면 왼쪽 아래에 항상 떠 있음 (글자를 가려도 괜찮음) */
-    .cat { position: fixed; left: 6px; right: auto; bottom: calc(24px + env(safe-area-inset-bottom)); }
+    /* 고양이: 화면 오른쪽 아래에 항상 떠 있음 (글자를 가려도 괜찮음) */
     .cat-name { font-size: 9.5px; }
-    .bubble { left: 8px; right: 8px; bottom: 116px; width: auto; max-height: calc(100vh - 132px); transform-origin: 0 100%; }
-    .bubble::after { left: 34px; right: auto; }
+    .bubble { left: 8px; right: 8px; bottom: 116px; width: auto; max-height: calc(100vh - 132px); max-height: calc(100dvh - 132px); overscroll-behavior: contain; }
+}
+
+@media (max-width: 400px) {
+    .nav .id, .nav a.item { padding: 10px 7px; font-size: 11px; }
+    .bubble-head { padding: 10px 14px; }
+    .bubble-body { padding: 12px 14px 12px; }
+    .bubble-flow { margin-bottom: 10px; }
+    .bubble-text { font-size: 14px; line-height: 1.75; }
 }
 </style>
 </head>
-<body data-guides="off"> <!-- 하이라이트 비활성. 켜려면 data-guides="on" -->
+<body data-guides="on"> <!-- 하이라이트 비활성. 켜려면 data-guides="on" -->
 <div class="trim">
 <div class="ref-row top"><span></span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span></span></div>
 <div class="mid">
@@ -447,7 +472,7 @@ body[data-guides="off"] .kw::after { content: none; }
         <h1 data-fit="52">편리한 도시를 넘어<br>포용도시를 향한 AI 연구</h1>
         <p>이태수 · 인하대학교 도시공간연구실 학부연구생</p>
         <ul class="tags-line">
-            <li class="t-blue">AI(LLM) 응용</li>
+            <li class="t-blue">AI(<span class="kw" role="button" tabindex="0" data-guide="llm">LLM</span>) 응용</li>
             <li class="t-teal">스마트 도시계획</li>
             <li class="t-magenta">시민참여</li>
         </ul>
@@ -521,19 +546,19 @@ body[data-guides="off"] .kw::after { content: none; }
         <div class="notes-title cap-title">CAPABILITIES · 역량</div>
         <div class="about-cols">
             <div>
-                <h3><span class="sw plan"></span><button class="kw" data-guide="llm-design">LLM 설계</button></h3>
+                <h3><span class="sw plan"></span>LLM 설계</h3>
                 <p>목적에 맞는 프롬프트와 에이전트 구조 설계</p>
             </div>
             <div>
-                <h3><span class="sw gis"></span><button class="kw" data-guide="ai-collab">AI 협업 연구</button></h3>
+                <h3><span class="sw gis"></span><span class="kw" role="button" tabindex="0" data-guide="ai-collab">AI 협업 연구</span></h3>
                 <p>신뢰를 우선하는 AI 협업 워크플로우</p>
             </div>
             <div>
-                <h3><span class="sw ai"></span><button class="kw" data-guide="fieldwork">현장조사</button></h3>
+                <h3><span class="sw ai"></span>현장조사</h3>
                 <p>데이터 뒤의 현장을 직접 확인해 연구에 반영</p>
             </div>
             <div>
-                <h3><span class="sw data"></span><button class="kw" data-guide="policy">정책 연계</button></h3>
+                <h3><span class="sw data"></span>정책 연계</h3>
                 <p>연구의 기여가 실제 정책과 사회로 이어지도록 설계</p>
             </div>
         </div>
@@ -563,7 +588,7 @@ body[data-guides="off"] .kw::after { content: none; }
                     <span class="scale">PHOTO · PANEL</span>
                 </div>
                 <div class="txt">
-                    <h3><button class="kw" data-guide="a-05">미래 시민에게 도시를 묻다: 인터뷰형 청년 주민참여 도구 유스플랜AI</button></h3>
+                    <h3><span class="kw" role="button" tabindex="0" data-guide="a-05">미래 시민에게 도시를 묻다: 인터뷰형 청년 주민참여 도구 유스플랜AI</span></h3>
                     <ul class="sub-lines">
                         <li><span>2026.06 – 09</span>준비 · 개발 · 실증</li>
                         <li><span>2026.09</span>인천시 청년정책공모전 장려상</li>
@@ -586,7 +611,7 @@ body[data-guides="off"] .kw::after { content: none; }
                     <span class="scale">PHOTO · FIELDWORK</span>
                 </div>
                 <div class="txt">
-                    <h3><button class="kw" data-guide="a-06">멀티모달 대규모 언어모델을 활용한 사용자 관점의 어린이공원 평가</button></h3>
+                    <h3><span class="kw" role="button" tabindex="0" data-guide="a-06">멀티모달 대규모 언어모델을 활용한 사용자 관점의 어린이공원 평가</span></h3>
                     <div class="sub">대한국토도시계획학회 추계학술대회 · 2026.10 (예정)</div>
                     <p>미추홀구 어린이공원 18곳을 어린이 눈높이에서 직접 촬영하고, 어린이 페르소나를 부여한 멀티모달 LLM으로 평가한 연구입니다.</p>
                     <div class="role"><b>역할</b><span>제1저자 · 연구 설계 및 수행 전반</span></div>
@@ -606,7 +631,7 @@ body[data-guides="off"] .kw::after { content: none; }
                     <span class="scale">PHOTO · PRESENTATION</span>
                 </div>
                 <div class="txt">
-                    <h3><button class="kw" data-guide="a-04">교통약자를 위한 QR 기반 입석 위험 안내 시스템</button></h3>
+                    <h3><span class="kw" role="button" tabindex="0" data-guide="a-04">교통약자를 위한 QR 기반 입석 위험 안내 시스템</span></h3>
                     <div class="sub">한국교통안전공단 × KT</div>
                     <p>교통카드 빅데이터, 버스 혼잡도, 통신 데이터로 입석 발생과 입석 시간을 예측하고, 교통약자가 QR로 대체 교통편을 미리 확인하도록 돕는 시스템입니다.</p>
                     <div class="role"><b>역할</b><span>프로젝트 기획 · 발표</span></div>
@@ -621,7 +646,7 @@ body[data-guides="off"] .kw::after { content: none; }
                     <span class="scale">PHOTO · DIAGRAM</span>
                 </div>
                 <div class="txt">
-                    <h3><button class="kw" data-guide="a-02">포용적 주민참여를 위한 LLM 다중 에이전트 시뮬레이션: 기술적 구현에 따른 효과 비교</button></h3>
+                    <h3><span class="kw" role="button" tabindex="0" data-guide="a-02">포용적 주민참여를 위한 LLM 다중 에이전트 시뮬레이션: 기술적 구현에 따른 효과 비교</span></h3>
                     <ul class="sub-lines">
                         <li><span>2026.04</span>대한국토도시계획학회 춘계산학학술대회 발표</li>
                         <li><span>2026.06</span>학술지 『국토계획』 투고</li>
@@ -643,7 +668,7 @@ body[data-guides="off"] .kw::after { content: none; }
                     <span class="scale">PHOTO · WATERLOO, ON</span>
                 </div>
                 <div class="txt">
-                    <h3><button class="kw" data-guide="a-03">제조업 기반의 도시가 어떻게 청년의 도시가 되었는가: 거대도시 옆 키치너-워털루를 중심으로</button></h3>
+                    <h3><span class="kw" role="button" tabindex="0" data-guide="a-03">제조업 기반의 도시가 어떻게 청년의 도시가 되었는가: 거대도시 옆 키치너-워털루를 중심으로</span></h3>
                     <div class="sub">인천광역시 × University of Waterloo</div>
                     <p>인천인재평생교육진흥원의 지원을 받아 서울 옆 인천의 청년유출 문제를, 토론토 옆 키치너-워털루와 비교해 살펴본 연구입니다.</p>
                     <div class="role"><b>역할</b><span>팀장 · 연구 설계 및 현장조사 총괄</span></div>
@@ -658,7 +683,7 @@ body[data-guides="off"] .kw::after { content: none; }
                     <span class="scale">PHOTO · AWARD</span>
                 </div>
                 <div class="txt">
-                    <h3><button class="kw" data-guide="a-01">AI 기반 상생 관광플랫폼, 제물포GO패스</button></h3>
+                    <h3><span class="kw" role="button" tabindex="0" data-guide="a-01">AI 기반 상생 관광플랫폼, 제물포GO패스</span></h3>
                     <div class="sub">인하대학교 지역상생 아이디어 공모전 지역사회협력위원장상 · 2025.09</div>
                     <p>관광객이 차이나타운과 월미도에 몰리는 인천 구도심에서, 관광 소외 지역으로 발길을 돌리게 하는 AI 기반의 개인 맞춤 관광 패스입니다.</p>
                     <div class="role"><b>역할</b><span>팀장 · 기획 및 개발 총괄</span></div>
@@ -736,7 +761,8 @@ body[data-guides="off"] .kw::after { content: none; }
 </script>
 
 <!-- 안내 고양이 "포트폴리오냥": 귀·꼬리 달린 얼굴 + 텍스트 표정. 기본 ↔ 설명 중 -->
-<div class="cat" id="cat" data-talking="false" role="img" aria-label="포트폴리오냥" title="포트폴리오냥">
+<div class="cat-dock">
+<div class="cat" id="cat" data-talking="false" role="button" tabindex="0" aria-label="포트폴리오냥">
     <svg viewBox="0 0 130 112" fill="none" stroke="#2349a1" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
         <!-- 꼬리: 머리 오른쪽에서 물음표처럼. 회전 기준은 몸에 붙은 지점 -->
         <path class="tail" d="M88 95c13 8 29 3 31-12 1-9-6-13-11-9" stroke-width="2"/>
@@ -744,10 +770,18 @@ body[data-guides="off"] .kw::after { content: none; }
         <path class="head" d="M36 50L30 20l25 11a40 40 0 0 1 30 0l25-11-6 30a38 38 0 1 1-68 0z" fill="#f7f7f4"/>
         <!-- 귀 안쪽: 채움 -->
         <path class="inner" d="M39 39l-4-13 13 6z M101 39l4-13-13 6z" fill="rgba(35,73,161,.22)" stroke="none"/>
+        <!-- 설명할 때만: 앞발로 쥔 막대기 -->
+        <g class="stick">
+            <path d="M31 86L5 36" stroke-width="2.4"/>
+            <circle cx="5" cy="36" r="3" fill="#2349a1"/>
+            <ellipse cx="32" cy="87" rx="6" ry="5" fill="#2349a1" stroke="#2349a1"/>
+        </g>
     </svg>
     <span class="face face-idle">(=•ω•=)</span>
-    <span class="face face-talk">(=✧ω✧=)ﾉ</span>
+    <span class="face face-talk">(=✧ω✧=)</span>
+</div>
     <span class="cat-name">포트폴리오냥</span>
+    <div class="cat-tip" id="catTip" role="status" hidden>하이라이트된 단어나 개념을 누르면 설명해준다냥</div>
 </div>
 
 <div class="overlay" id="overlay" data-open="false">
@@ -764,32 +798,41 @@ body[data-guides="off"] .kw::after { content: none; }
 /* 안내: 하이라이트된 키워드를 누르면 열림. 열 때마다 초기화. */
 (function () {
     var guides = {
-        'llm-design': { title: 'LLM 설계', steps: ['[단계 1]', '[단계 2]', '[단계 3]'], text: '[LLM 설계에 대한 설명 3~4문장]' },
-        'ai-collab':  { title: 'AI 협업 연구', steps: ['[단계 1]', '[단계 2]', '[단계 3]', '[검증]'], text: '[AI 협업 연구에 대한 설명 3~4문장]' },
-        'fieldwork':  { title: '현장조사', steps: ['[단계 1]', '[단계 2]', '[단계 3]'], text: '[현장조사에 대한 설명 3~4문장]' },
-        'policy':     { title: '정책 연계', steps: ['[단계 1]', '[단계 2]', '[단계 3]'], text: '[정책 연계에 대한 설명 3~4문장]' },
-        'a-05': { title: '[프로젝트 A-05]', steps: ['[입력]', '[처리]', '[출력]'], text: '[A-05 워크플로우 설명 3~4문장]' },
-        'a-06': { title: '[프로젝트 A-06]', steps: ['[입력]', '[처리]', '[출력]'], text: '[A-06 워크플로우 설명 3~4문장]' },
-        'a-04': { title: '[프로젝트 A-04]', steps: ['[입력]', '[처리]', '[출력]'], text: '[A-04 워크플로우 설명 3~4문장]' },
-        'a-02': { title: '[프로젝트 A-02]', steps: ['[입력]', '[처리]', '[출력]'], text: '[A-02 워크플로우 설명 3~4문장]' },
-        'a-01': { title: '[프로젝트 A-01]', steps: ['[입력]', '[처리]', '[출력]'], text: '[A-01 워크플로우 설명 3~4문장]' },
-        'a-03': { title: '[프로젝트 A-03]', steps: ['[입력]', '[처리]', '[출력]'], text: '[A-03 워크플로우 설명 3~4문장]' }
+        'llm':        { title: 'LLM', steps: ['시민의 말', 'LLM이 알아듣고 정리', '계획에 쓰는 자료'], text: 'LLM은 사람의 말을 알아듣고 글로 대답하는 AI입니다. 도시계획은 많은 사람의 이야기를 들어야 하는 일인데, 사람이 일일이 듣고 정리하기엔 시간이 모자랍니다. LLM은 그 이야기를 대신 듣고, 비슷한 것끼리 묶고, 계획에 쓸 수 있게 정리해 줍니다. 그래서 더 많은 사람의 목소리가 계획에 닿을 수 있습니다.' },
+        'ai-collab':  { title: 'AI 협업 연구', steps: ['연구 질문', 'AI가 개발 · 분석 · 초안 작성', '연구자가 검증', '연구 결과'], text: '제 연구에서 AI는 함께 일하는 동료입니다. 프로그램을 개발하고, 데이터를 분석하고, 논문 초안도 씁니다. 저는 무엇을 연구할지 정하고, AI가 한 일이 맞는지 하나하나 확인합니다. 그래서 혼자서도 빠르게, 그러나 믿을 수 있게 연구합니다.' },
+        'a-06': { title: '[A-06]', steps: ['[단계]'], text: '[A-06 설명]' },
+        'a-05': { title: '[A-05]', steps: ['[단계]'], text: '[A-05 설명]' },
+        'a-04': { title: '[A-04]', steps: ['[단계]'], text: '[A-04 설명]' },
+        'a-03': { title: '[A-03]', steps: ['[단계]'], text: '[A-03 설명]' },
+        'a-02': { title: '[A-02]', steps: ['[단계]'], text: '[A-02 설명]' },
+        'a-01': { title: '[A-01]', steps: ['[단계]'], text: '[A-01 설명]' }
     };
     var cat = document.getElementById('cat'), overlay = document.getElementById('overlay');
     var tEl = document.getElementById('bubbleTitle'), fEl = document.getElementById('bubbleFlow'), xEl = document.getElementById('bubbleText');
 
+    function wrap(t, max) {
+        if (t.length <= (max || 9)) return [t];
+        var mid = t.length / 2, best = -1;
+        for (var i = 0; i < t.length; i++) if (t[i] === ' ' && (best < 0 || Math.abs(i - mid) < Math.abs(best - mid))) best = i;
+        return best < 0 ? [t] : [t.slice(0, best), t.slice(best + 1)];
+    }
+    function label(x, cy, t, max) {
+        var ls = wrap(t, max), out = '<text x="' + x + '" text-anchor="middle" fill="#2349a1" font-size="15">';
+        ls.forEach(function (l, i) { out += '<tspan x="' + x + '" y="' + (cy + 5 + (i - (ls.length - 1) / 2) * 19) + '">' + l + '</tspan>'; });
+        return out + '</text>';
+    }
     function flowSvg(steps) {
         var n = steps.length;
         var narrow = window.innerWidth < 600 && n > 2;
         var out, i;
         if (narrow) { /* 좁은 화면: 세로로 쌓기 */
-            var W = 320, bh = 52, gap = 34, H = n * bh + (n - 1) * gap;
+            var small = window.innerWidth <= 400, W = 320, bh = small ? 46 : 58, gap = small ? 22 : 30, H = n * bh + (n - 1) * gap;
             out = '<svg viewBox="0 0 ' + W + ' ' + H + '" font-family="Pretendard, sans-serif" font-size="16" style="max-width:320px;margin:0 auto">';
             out += '<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="#2349a1"/></marker></defs>';
             for (i = 0; i < n; i++) {
                 var y = i * (bh + gap);
                 out += '<rect x="40" y="' + y + '" width="240" height="' + bh + '" fill="#fff" stroke="#2349a1" stroke-width="1.5"/>';
-                out += '<text x="160" y="' + (y + bh / 2 + 6) + '" text-anchor="middle" fill="#2349a1">' + steps[i] + '</text>';
+                out += label(160, y + bh / 2, steps[i], 20);
                 if (i < n - 1) out += '<path d="M160 ' + (y + bh) + 'v' + (gap - 2) + '" stroke="#2349a1" stroke-width="1.5" marker-end="url(#ah)"/>';
             }
             return out + '</svg>';
@@ -800,7 +843,7 @@ body[data-guides="off"] .kw::after { content: none; }
         for (i = 0; i < n; i++) {
             var x = i * (bw + g);
             out += '<rect x="' + x + '" y="20" width="' + bw + '" height="56" fill="#fff" stroke="#2349a1" stroke-width="1.5"/>';
-            out += '<text x="' + (x + bw / 2) + '" y="54" text-anchor="middle" fill="#2349a1">' + steps[i] + '</text>';
+            out += label(x + bw / 2, 48, steps[i]);
             if (i < n - 1) out += '<path d="M' + (x + bw) + ' 48h' + (g - 2) + '" stroke="#2349a1" stroke-width="1.5" marker-end="url(#ah)"/>';
         }
         return out + '</svg>';
@@ -808,15 +851,27 @@ body[data-guides="off"] .kw::after { content: none; }
     function open(key) {
         var g = guides[key]; if (!g) return;
         tEl.textContent = g.title; fEl.innerHTML = flowSvg(g.steps); xEl.innerHTML = '<p>' + g.text + '</p>';
+        tip.hidden = true; clearTimeout(tipTimer);
         overlay.dataset.open = 'true'; cat.dataset.talking = 'true';
         document.getElementById('bubble').scrollTop = 0;
     }
     function close() { overlay.dataset.open = 'false'; cat.dataset.talking = 'false'; }
     if (document.body.dataset.guides === 'off') return;
-    document.querySelectorAll('.kw').forEach(function (k) { k.addEventListener('click', function (e) { e.preventDefault(); open(k.dataset.guide); }); });
+    document.querySelectorAll('.kw').forEach(function (k) {
+        var g = guides[k.dataset.guide];
+        if (!g || /^\[/.test(g.text)) { k.classList.add('kw-pending'); k.removeAttribute('role'); k.removeAttribute('tabindex'); return; }
+        k.addEventListener('click', function (e) { e.preventDefault(); open(k.dataset.guide); });
+        k.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(k.dataset.guide); } });
+    });
+    var tip = document.getElementById('catTip'), tipTimer;
+    function hideTip() { tip.hidden = true; if (overlay.dataset.open !== 'true') cat.dataset.talking = 'false'; clearTimeout(tipTimer); }
+    function showTip() { tip.hidden = false; cat.dataset.talking = 'true'; clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 3500); }
+    function onCat() { if (overlay.dataset.open === 'true') { close(); return; } tip.hidden ? showTip() : hideTip(); }
+    cat.addEventListener('click', onCat);
+    cat.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCat(); } });
     document.getElementById('bubbleClose').addEventListener('click', close);
     overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { close(); hideTip(); } });
 })();
 </script>
 </body>

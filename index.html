@@ -383,6 +383,37 @@ body[data-guides="off"] .kw::after { content: none; }
 /* 빈 자리 표시 */
 .ph { color: var(--magenta); font-weight: 700; }
 .ph-fig { font-family: var(--mono); font-size: 12px; color: var(--magenta); text-align: center; padding: 20px; }
+
+/* ===== 모바일 (아이폰 기준 402px 전후) ===== */
+@media (max-width: 900px) {
+    /* 내비: 한 줄, 넘치면 가로 스크롤 */
+    .sheet, .nav { min-width: 0; }
+    .nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav .id, .nav a.item { flex: none; padding: 10px 9px; font-size: 12px; white-space: nowrap; }
+    .nav .id { letter-spacing: .5px; }
+    .nav .spacer { display: none; }
+    /* 섹션 머리: 한 줄 */
+    .block-head .en { display: none; }
+    .block-head .sheetno { font-size: 10px; }
+    /* 연락처 상자 라벨 칸 좁게 */
+    .hero-contact div { grid-template-columns: 64px 1fr; }
+    .hero-contact small { padding: 6px 8px; }
+    /* 최근 활동 표 */
+    .index td { font-size: 12.5px; vertical-align: top; }
+    .index td:first-child { width: 62px; font-size: 11.5px; }
+    .index td:last-child { white-space: nowrap; padding-left: 8px; }
+    /* 위치도: 글자 키우기 (지도가 화면 폭에 맞춰 줄어드는 만큼) */
+    .keyplan text[font-size="12"] { font-size: 16px; }
+    .keyplan text[font-size="10"] { font-size: 13px; }
+    /* 03 기록: 날짜·종류 / 제목 / 기관 세 줄 */
+    .record li { grid-template-columns: auto 1fr; gap: 2px 10px; padding: 10px 0; }
+    .record li > span:nth-child(3) { grid-column: 1 / -1; font-size: 14.5px; color: var(--ink); }
+    .record li > .org { grid-column: 1 / -1; white-space: normal; font-size: 12.5px; }
+    /* 고양이: 화면에 떠 있지 않고 페이지 맨 끝에 앉음 */
+    body { position: relative; padding-bottom: 96px; }
+    .cat { position: absolute; right: 14px; bottom: 10px; }
+}
 </style>
 </head>
 <body data-guides="off"> <!-- 하이라이트 비활성. 켜려면 data-guides="on" -->
@@ -696,8 +727,8 @@ body[data-guides="off"] .kw::after { content: none; }
 })();
 </script>
 
-<!-- 안내 고양이: 귀·꼬리 달린 얼굴 + 텍스트 표정. 기본 ↔ 설명 중 -->
-<div class="cat" id="cat" data-talking="false" aria-hidden="true">
+<!-- 안내 고양이 "포트폴리오냥": 귀·꼬리 달린 얼굴 + 텍스트 표정. 기본 ↔ 설명 중 -->
+<div class="cat" id="cat" data-talking="false" role="img" aria-label="포트폴리오냥" title="포트폴리오냥">
     <svg viewBox="0 0 130 112" fill="none" stroke="#2349a1" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
         <!-- 꼬리: 머리 오른쪽에서 물음표처럼. 회전 기준은 몸에 붙은 지점 -->
         <path class="tail" d="M88 95c13 8 29 3 31-12 1-9-6-13-11-9" stroke-width="2"/>
@@ -712,7 +743,7 @@ body[data-guides="off"] .kw::after { content: none; }
 
 <div class="overlay" id="overlay" data-open="false">
     <div class="bubble" role="dialog" aria-label="설명" id="bubble">
-        <div class="bubble-head">AI GUIDE <b id="bubbleTitle"></b><button class="x" id="bubbleClose" aria-label="닫기">×</button></div>
+        <div class="bubble-head">포트폴리오냥 <b id="bubbleTitle"></b><button class="x" id="bubbleClose" aria-label="닫기">×</button></div>
         <div class="bubble-body">
             <div class="bubble-flow" id="bubbleFlow"></div>
             <div class="bubble-text" id="bubbleText"></div>
